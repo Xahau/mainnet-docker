@@ -49,5 +49,10 @@ echo ""
 echo "Xahaud running binary version:"
 docker exec xahaud-mainnet sh -c 'cat /opt/xahaud/bin/xahaud|md5sum'|cut -d " " -f 1
 echo "Xahaud running version string (build_version):"
+# Give it a sec
+sleep 3
 docker exec xahaud-mainnet xahaud -q server_info|grep build_version|cut -d '"' -f 4
+echo ""
+echo "Pubkey:"
+docker exec xahaud-mainnet xahaud -q server_info|grep pubkey_node|cut -d '"' -f 4
 echo ""
