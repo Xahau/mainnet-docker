@@ -1,0 +1,5 @@
+[validator_list_sites]
+https://vl.xahau.org
+
+[validator_list_keys]
+EDA46E9C39B1389894E690E58914DC1029602870370A0993E5B87C4A24EAF4A8E8

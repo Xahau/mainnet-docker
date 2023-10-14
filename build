@@ -1,0 +1,71 @@
+#!/bin/bash
+
+## PINNED MAINNET VERSION
+pinned_version="2023.10.9-release+391"
+## END PINNED MAINNET VERSION
+
+echo ""
+echo '                   $$\                                 $$\ '
+echo '                   $$ |                                $$ |'
+echo '$$\   $$\ $$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\  $$$$$$$ |'
+echo '\$$\ $$  |\____$$\ $$  __$$\  \____$$\ $$ |  $$ |$$  __$$ |'
+echo ' \$$$$  / $$$$$$$ |$$ |  $$ | $$$$$$$ |$$ |  $$ |$$ /  $$ |'
+echo ' $$  $$< $$  __$$ |$$ |  $$ |$$  __$$ |$$ |  $$ |$$ |  $$ |'
+echo '$$  /\$$\\$$$$$$$ |$$ |  $$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$ |'
+echo '\__/  \__|\_______|\__|  \__| \_______| \______/  \_______|'
+echo ""
+echo ">>> MAINNET EDITION"
+echo ">>> NETWORK ID: [ 21337 ]"
+echo ""
+
+self() {
+  DIR=$( cd "$( dirname "$0" )/" && pwd)
+  echo $DIR
+}
+
+log() {
+  echo $1  
+}
+
+PROGRAM=xahaud
+RELEASE_TYPE="release"
+URL="https://build.xahau.tech/"
+DL_DIR=$(self)/./store/downloads
+
+# Get the latest version
+echo "Checking the latest $PROGRAM release:"
+filenames=$(curl --silent "${URL}" | grep -Eo '>[^<]+<' | sed -e 's/^>//' -e 's/<$//' | grep -E '^\S+\+[0-9]{2,3}$' | grep -E $RELEASE_TYPE)
+
+# If files were found, sort them and download the latest one if it hasn't already been downloaded
+if [[ -n $filenames ]]; then
+  if [[ -n $pinned_version ]]; then
+  latest_file=$pinned_version
+  else
+    latest_file=$(echo "${filenames}" | sort -r | head -n 1)
+  fi
+
+  log "$latest_file is the latest available for download"
+  if [[ -f "$DL_DIR/$latest_file" ]]; then
+    log "File already downloaded: $latest_file"
+  else
+    rm -f $DL_DIR/*-$RELEASE_TYPE+*
+    log "Downloading latest file: ${latest_file} to $DL_DIR"
+    curl --fail "${URL}${latest_file}" -o "$DL_DIR/$latest_file"
+    chmod +x "$DL_DIR/$latest_file"
+  fi
+else
+  log "No files of type $RELEASE_TYPE found"
+  exit 1
+fi
+
+TAG="mainnet"
+
+log "Remove existing image"
+docker rmi -f xahaud:$TAG
+
+log "Building image"
+#docker build --tag xahaud:$TAG $(self)/.
+docker build --network=host --no-cache --tag xahaud:$TAG $(self)/.
+# docker tag xahaud:$TAG xahaud:latest
+
+log "Done, you can now run $(self)/up"

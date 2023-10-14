@@ -1,0 +1,53 @@
+#!/bin/bash
+
+echo ""
+echo '                   $$\                                 $$\ '
+echo '                   $$ |                                $$ |'
+echo '$$\   $$\ $$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\  $$$$$$$ |'
+echo '\$$\ $$  |\____$$\ $$  __$$\  \____$$\ $$ |  $$ |$$  __$$ |'
+echo ' \$$$$  / $$$$$$$ |$$ |  $$ | $$$$$$$ |$$ |  $$ |$$ /  $$ |'
+echo ' $$  $$< $$  __$$ |$$ |  $$ |$$  __$$ |$$ |  $$ |$$ |  $$ |'
+echo '$$  /\$$\\$$$$$$$ |$$ |  $$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$ |'
+echo '\__/  \__|\_______|\__|  \__| \_______| \______/  \_______|'
+echo ""
+echo ">>> MAINNET EDITION"
+echo ""
+echo ">>> NETWORK ID: [ 21337 ]"
+echo ""
+
+self(){
+  DIR=$( cd "$( dirname "$0" )/" && pwd)
+  echo $DIR
+}
+
+docker rm -f xahaud-mainnet
+
+# Ugly
+chmod -R 777 $(self)/./store
+
+docker run \
+    -dit \
+    --privileged \
+    --network=host \
+    --restart always \
+    --platform linux/x86_64 \
+    --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+    --name xahaud-mainnet \
+    -p 22222:22 \
+    -p 21337:21337 \
+    -p 15005:15005 \
+    -p 16005:16005 \
+    -p 16006:16006 \
+    -p 16007:16007 \
+    -v $(self)/./store/db:/opt/xahaud/db \
+    -v $(self)/./store/etc:/opt/xahaud/etc \
+    -v $(self)/./store/log:/opt/xahaud/log \
+    -v $(self)/./store/ssh/authorized_keys:/root/.ssh/authorized_keys \
+    xahaud:mainnet
+
+echo ""
+echo "Xahaud running binary version:"
+docker exec xahaud-mainnet sh -c 'cat /opt/xahaud/bin/xahaud|md5sum'|cut -d " " -f 1
+echo "Xahaud running version string (build_version):"
+docker exec xahaud-mainnet xahaud -q server_info|grep build_version|cut -d '"' -f 4
+echo ""

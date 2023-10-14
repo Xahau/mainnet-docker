@@ -1,0 +1,6 @@
+.DS_Store
+.dccache
+/store/db/*
+/store/ssh/authorized_keys
+/store/log/debug.log
+/store/downloads/*
