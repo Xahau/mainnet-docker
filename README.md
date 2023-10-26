@@ -8,6 +8,14 @@ For Docker + IPv6 setup, see:
 
 - https://gist.github.com/WietseWind/846b6274c0e7208e3b8fa96fb1149c07#file-docker-ipv6-install-sh
 
+### ⚠️ Warning regarding the pinned binary
+
+All Xahau builds are available at https://build.xahau.tech. 
+
+**The build script in this repository contains the right pinned build.**
+
+If you build the image yourself, without the build script, you will have to manually replace the right build version! If you don't, the binary will fail to sync and most likely crash during the sync process.
+
 ---
 
 ## XAHAU MAINNET, NETWORK ID 21337
@@ -26,6 +34,7 @@ $$  /\$$\\$$$$$$$ |$$ |  $$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$ |
 ### Build:
 
 WARNING!
+
 - This will remove any existing image with the same `xahaud` release tag
 - The container tag will `xahaud-mainnet`
 
