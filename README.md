@@ -4,7 +4,7 @@ Docker container to run a Xahau node on MAINNET.
 
 ## Live build:
 
-`2023.10.30-release+439` - https://build.xahau.tech/2023.10.30-release%2B439
+`2023.10.30-release+443` - https://build.xahau.tech/2023.10.30-release%2B443
 
 ## IPv6 edition (!)
 
