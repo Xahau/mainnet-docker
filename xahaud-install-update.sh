@@ -135,8 +135,12 @@ filenames=$(curl --silent "${URL}" | grep -Eo '>[^<]+<' | sed -e 's/^>//' -e 's/
 if [[ -n $filenames ]]; then
   existing_binary=$(find $DL_DIR -executable -type f -size +50M|rev|cut -d "/" -f 1|rev)
   if [[ -n $existing_binary ]]; then
-    latest_file=$(echo "${existing_binary}" | sort -Vr | head -n 1)
-    log "$latest_file is binary, executable, gt 50M, in cache, we use it"
+    if [[ "$latest_file" < "$existing_binary" ]]; then
+      latest_file=$(echo "${filenames}" | sort -Vr | head -n 1)
+    else
+      latest_file=$(echo "${existing_binary}" | sort -Vr | head -n 1)
+      log "$latest_file is binary, executable, gt 50M, in cache, we use it"
+    fi
   else
     latest_file=$(echo "${filenames}" | sort -Vr | head -n 1)
     log "$latest_file is the latest available for download"
