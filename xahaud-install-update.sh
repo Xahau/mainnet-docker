@@ -3,7 +3,8 @@
 
 
 # Modify this line to QUORUM="" for final. No quorum should be specified
-QUORUM="--quorum=5"
+# QUORUM="--quorum=5"
+QUORUM="" # Final, live
 
 # Change the next line to select branch. Acceptable values are "dev" and "release"
 RELEASE_TYPE="release"
