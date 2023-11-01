@@ -31,8 +31,8 @@ else
   NOBASE=false
 fi
 
-# For systemd
-EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM $QUORUM --net --silent --conf $ETC_DIR/$PROGRAM.cfg"
+# For systemd -- Update prod: no net # --net
+EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM $QUORUM --silent --conf $ETC_DIR/$PROGRAM.cfg"
 
 # Function to log messages to the log file
 log() {
