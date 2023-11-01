@@ -1,16 +1,11 @@
 #!/bin/bash
 
-
-
-# Modify this line to QUORUM="" for final. No quorum should be specified
-# QUORUM="--quorum=5"
-QUORUM="" # Final, live
-
+# Do not change below this line unless you know what you're doing :)
 # Change the next line to select branch. Acceptable values are "dev" and "release"
 RELEASE_TYPE="release"
 # Change the next line to update the download URL
 URL="https://build.xahau.tech/"
-# Do not change below this line unless you know what you're doing
+
 BASE_DIR=/opt/xahaud
 USER=xahaud
 PROGRAM=xahaud
@@ -31,8 +26,10 @@ else
   NOBASE=false
 fi
 
-# For systemd -- Update prod: no net # --net
-EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM $QUORUM --silent --conf $ETC_DIR/$PROGRAM.cfg"
+# For systemd
+EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM  --net --silent --conf $ETC_DIR/$PROGRAM.cfg"
+
+
 
 # Function to log messages to the log file
 log() {
@@ -53,6 +50,8 @@ clean() {
   userdel $USER
   rm -rf $BASE_DIR
   #rm -rf $LOG_DIR
+
+  
 }
 
 #remove next line
@@ -74,6 +73,7 @@ if pgrep -x "xahaud" >/dev/null; then
     echo "xahaud is running in the expected location (/opt/xahaud/bin/xahaud) with PID: $xahaud_pid."
   else
     echo "xahaud is running with PID: $xahaud_pid, but not in the expected location. It is running from: $xahaud_path"
+    echo "***Please stop xahaud first.***"
     exit 1
   fi
 else
@@ -132,39 +132,28 @@ fi
 log "Fetching latest version of $PROGRAM..."
 filenames=$(curl --silent "${URL}" | grep -Eo '>[^<]+<' | sed -e 's/^>//' -e 's/<$//' | grep -E '^\S+\+[0-9]{2,3}$' | grep -E $RELEASE_TYPE)
 
-# If files were found, sort them and download the latest one if it hasn't already been downloaded
-if [[ -n $filenames ]]; then
-  existing_binary=$(find $DL_DIR -executable -type f -size +50M|rev|cut -d "/" -f 1|rev)
-  if [[ -n $existing_binary ]]; then
-    latest_file=$(echo "${existing_binary}" | sort -r | head -n 1)
-    log "$latest_file is binary, executable, gt 50M, in cache, we use it"
-  else
-    latest_file=$(echo "${filenames}" | sort -r | head -n 1)
-    log "$latest_file is the latest available for download"
-  fi
+latest_file=$(curl https://build.xahau.tech/ 2>/dev/null | grep release | grep -v releaseinfo | sed -E 's/(<a href[^>]*?>).*/\1/g' | sed -E 's/(^[^"]+"|"[^"]+$)//g' | sort -t'B' -k2n -n | tail -n 1)
 
-  if [[ -f "$DL_DIR/$latest_file" ]]; then
+
+log "$latest_file is the latest available for download"
+if [[ -f "$DL_DIR/$latest_file" ]]; then
     log "File already downloaded: $latest_file"
-  else
+else
     log "Downloading latest file: ${latest_file} to $DL_DIR"
     curl --silent --fail "${URL}${latest_file}" -o "$DL_DIR/$latest_file"
-  fi
+fi
 
-  chmod +x "$DL_DIR/$latest_file"
-  chown $USER:$USER "$DL_DIR/$latest_file"
+chmod +x "$DL_DIR/$latest_file"
+chown $USER:$USER "$DL_DIR/$latest_file"
 
-  # Update symlink if the latest file is different from the one it points to
-  current_file=$(readlink "$BIN_DIR/$PROGRAM")
-  if [[ "$current_file" != "$DL_DIR/$latest_file" ]]; then
+# Update symlink if the latest file is different from the one it points to
+current_file=$(readlink "$BIN_DIR/$PROGRAM")
+if [[ "$current_file" != "$DL_DIR/$latest_file" ]]; then
     log "Updating symlink: $current_file -> $DL_DIR/$latest_file"
     ln -snf "$DL_DIR/$latest_file" "$BIN_DIR/$PROGRAM"
     DO_RESTART=true
-  else
-    DO_RESTART=false
-  fi
 else
-  log "No files of type $RELEASE_TYPE found"
-  exit 1
+    DO_RESTART=false
 fi
 
 
@@ -182,7 +171,7 @@ Type=simple
 $EXEC_COMMAND
 Restart=on-failure
 User=$USER
-Group=root
+Group=$USER
 LimitNOFILE=65536
 
 [Install]
@@ -206,8 +195,6 @@ if [[ ! -f $CONFIG_FILE ]]; then
 [overlay]
 ip_limit = 1024
 
-[ledger_history]
-full
 
 [network_id]
 21337
@@ -246,7 +233,7 @@ protocol = ws
 #websocket_ping_frequency = 10
 
 [node_size]
-medium
+huge
 
 
 [node_db]
@@ -282,8 +269,17 @@ $VALIDATORS_FILE
 [ips_fixed]
 bacab.alloy.ee 21337
 
+# For validators only
+[voting]
+account_reserve = 1000000
+owner_reserve = 200000
+
 # Add validator token stanza etc after this. Don't forget to restart 
-  
+
+# Uncomment for Full History
+#[ledger_history]
+#full
+
 EOF
 fi
 
@@ -296,10 +292,10 @@ https://vl.xahau.org
 [validator_list_keys]
 EDA46E9C39B1389894E690E58914DC1029602870370A0993E5B87C4A24EAF4A8E8
 
+
 [import_vl_keys]
 ED45D1840EE724BE327ABE9146503D5848EFD5F38B6D5FEDE71E80ACCE5E6E738B
 EOF
-
 fi
 chown -R $USER:$USER $BASE_DIR
 if [[ ! -d "/etc/opt/$PROGRAM" ]]; then
