@@ -27,8 +27,7 @@ else
 fi
 
 # For systemd
-EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM  --net --silent --conf $ETC_DIR/$PROGRAM.cfg"
-
+EXEC_COMMAND="ExecStart=$BIN_DIR/$PROGRAM --silent --conf $ETC_DIR/$PROGRAM.cfg"
 
 
 # Function to log messages to the log file
@@ -171,7 +170,7 @@ Type=simple
 $EXEC_COMMAND
 Restart=on-failure
 User=$USER
-Group=$USER
+Group=root
 LimitNOFILE=65536
 
 [Install]
