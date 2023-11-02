@@ -167,6 +167,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+ExecStartPre=+chown -R $USER /opt/xahaud
 $EXEC_COMMAND
 Restart=on-failure
 User=$USER

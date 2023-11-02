@@ -23,8 +23,7 @@ self(){
 docker rm -f xahaud-mainnet
 
 # Ugly
-chown -R 999:0 $(self)/./store
-chmod -R 777 $(self)/./store
+chmod -R 777 $(self)/./store/bin
 
 docker run \
     -dit \
