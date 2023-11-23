@@ -195,7 +195,6 @@ if [[ ! -f $CONFIG_FILE ]]; then
 [overlay]
 ip_limit = 1024
 
-
 [network_id]
 21337
 
@@ -203,7 +202,8 @@ ip_limit = 1024
 port_rpc_admin_local
 port_peer
 port_ws_admin_local
-#port_ws_public
+port_ws_public
+port_rpc_public
 
 [port_rpc_admin_local]
 port = 5009
@@ -222,25 +222,28 @@ ip = 127.0.0.1
 admin = 127.0.0.1
 protocol = ws
 
+[port_ws_public]
+port = 6008
+ip = 0.0.0.0
+protocol = ws
+secure_gateway = 127.0.0.1
+limit = 50000
+send_queue_limit = 20000
+websocket_ping_frequency = 10
 
-#[port_ws_public]
-#port = 6008
-#ip = 0.0.0.0
-#protocol = ws
-#secure_gateway = 127.0.0.1
-#limit = 50000
-#send_queue_limit = 20000
-#websocket_ping_frequency = 10
+[port_rpc_public]
+port = 6007
+ip = 0.0.0.0
+protocol = http
+secure_gateway = 127.0.0.1
 
 [node_size]
-huge
-
+medium
 
 [node_db]
 type=NuDB
 path=$DB_DIR/nudb
 advisory_delete=0
-
 
 [database_path]
 $DB_DIR
@@ -291,7 +294,6 @@ https://vl.xahau.org
 
 [validator_list_keys]
 EDA46E9C39B1389894E690E58914DC1029602870370A0993E5B87C4A24EAF4A8E8
-
 
 [import_vl_keys]
 ED45D1840EE724BE327ABE9146503D5848EFD5F38B6D5FEDE71E80ACCE5E6E738B
