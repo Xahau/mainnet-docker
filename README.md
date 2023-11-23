@@ -2,6 +2,10 @@
 
 Docker container to run a Xahau node on MAINNET.
 
+The way this container should be used (like all Docker containers) is to map config files from the host to the container, so the container can be destroyed and re-created (build image) in case of updates, without losing config. See folder mapping examples in the `./up` script in this repository.
+
+If you prefer not to run in a Docker container, simply fetch the install script (`xahaud-install-update.sh`) and run it on the host.
+
 ## Live build:
 
 `2023.10.30-release+443` - https://build.xahau.tech/2023.10.30-release%2B443
