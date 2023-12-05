@@ -4,6 +4,7 @@ Docker container to run a Xahau node on MAINNET.
 
 The way this container should be used (like all Docker containers) is to map config files from the host to the container, so the container can be destroyed and re-created (build image) in case of updates, without losing config. See folder mapping examples in the `./up` script in this repository.
 
+## Alternatively: install without Docker:
 If you prefer not to run in a Docker container, simply fetch the install script (`xahaud-install-update.sh`) and run it on the host.
 
 ## Live build:
@@ -15,6 +16,12 @@ If you prefer not to run in a Docker container, simply fetch the install script 
 For Docker + IPv6 setup, see:
 
 - https://gist.github.com/WietseWind/846b6274c0e7208e3b8fa96fb1149c07#file-docker-ipv6-install-sh
+
+## Updating
+
+Either re-create the Docker container based on a new image, or keep the container running and update the `xahaud` binary inside the container.
+
+Example Gist to do this: https://gist.github.com/WietseWind/2ed35d85dcd056d82645de2958934f86
 
 ### ⚠️ Warning regarding the pinned binary
 
