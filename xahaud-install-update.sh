@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Use param -v to install a specific version (eg. "-v 2023.12.29-release+689"). If omitted, latest version is used.
+VERSION="latest"
+while getopts "v:" opt; do
+  case $opt in
+    v) VERSION=$OPTARG ;;
+  esac
+done
+
 # Do not change below this line unless you know what you're doing :)
 # Change the next line to select branch. Acceptable values are "dev" and "release"
 RELEASE_TYPE="release"
@@ -131,8 +139,17 @@ fi
 log "Fetching versions of $PROGRAM..."
 filenames=$(curl --silent "${URL}" | grep -Eo '>[^<]+<' | sed -e 's/^>//' -e 's/<$//' | grep -E '^\S+\+[0-9]{2,3}$' | grep -E $RELEASE_TYPE)
 
-version_file=$(curl https://build.xahau.tech/ 2>/dev/null | grep release | grep -v releaseinfo | sed -E 's/(<a href[^>]*?>).*/\1/g' | sed -E 's/(^[^"]+"|"[^"]+$)//g' | sort -t'B' -k2n -n | tail -n 1)
+if [[ "$VERSION" == "latest" ]]; then
+  version_filter="release"
+else
+  version_filter=$VERSION
+fi
+version_file=$(curl https://build.xahau.tech/ 2>/dev/null | grep $version_filter | grep -v releaseinfo | sed -E 's/(<a href[^>]*?>).*/\1/g' | sed -E 's/(^[^"]+"|"[^"]+$)//g' | sort -t'B' -k2n -n | tail -n 1)
 
+if [[ "$version_file" == "" ]]; then
+  echo "Error: $VERSION could not be found for download"
+  exit 1
+fi
 
 log "$version_file is available for download"
 if [[ -f "$DL_DIR/$version_file" ]]; then
