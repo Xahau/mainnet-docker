@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Use param -v to install a specific version (eg. "-v 2023.12.29-release+689"). If omitted, latest version is used.
+VERSION="latest"
+while getopts "v:" opt; do
+  case $opt in
+    v) VERSION=$OPTARG ;;
+  esac
+done
+
 # Do not change below this line unless you know what you're doing :)
 # Change the next line to select branch. Acceptable values are "dev" and "release"
 RELEASE_TYPE="release"
@@ -128,28 +136,37 @@ if [[ "$FIRST_RUN" == true ]]; then
   echo "This script has been copied to /usr/local/bin and can be invoked without a path."
 fi
 
-log "Fetching latest version of $PROGRAM..."
+log "Fetching versions of $PROGRAM..."
 filenames=$(curl --silent "${URL}" | grep -Eo '>[^<]+<' | sed -e 's/^>//' -e 's/<$//' | grep -E '^\S+\+[0-9]{2,3}$' | grep -E $RELEASE_TYPE)
 
-latest_file=$(curl https://build.xahau.tech/ 2>/dev/null | grep release | grep -v releaseinfo | sed -E 's/(<a href[^>]*?>).*/\1/g' | sed -E 's/(^[^"]+"|"[^"]+$)//g' | sort -t'B' -k2n -n | tail -n 1)
-
-
-log "$latest_file is the latest available for download"
-if [[ -f "$DL_DIR/$latest_file" ]]; then
-    log "File already downloaded: $latest_file"
+if [[ "$VERSION" == "latest" ]]; then
+  version_filter="release"
 else
-    log "Downloading latest file: ${latest_file} to $DL_DIR"
-    curl --silent --fail "${URL}${latest_file}" -o "$DL_DIR/$latest_file"
+  version_filter=$VERSION
+fi
+version_file=$(curl https://build.xahau.tech/ 2>/dev/null | grep $version_filter | grep -v releaseinfo | sed -E 's/(<a href[^>]*?>).*/\1/g' | sed -E 's/(^[^"]+"|"[^"]+$)//g' | sort -t'B' -k2n -n | tail -n 1)
+
+if [[ "$version_file" == "" ]]; then
+  echo "Error: $VERSION could not be found for download"
+  exit 1
 fi
 
-chmod +x "$DL_DIR/$latest_file"
-chown $USER:$USER "$DL_DIR/$latest_file"
+log "$version_file is available for download"
+if [[ -f "$DL_DIR/$version_file" ]]; then
+    log "File already downloaded: $version_file"
+else
+    log "Downloading version file: ${version_file} to $DL_DIR"
+    curl --silent --fail "${URL}${version_file}" -o "$DL_DIR/$version_file"
+fi
 
-# Update symlink if the latest file is different from the one it points to
+chmod +x "$DL_DIR/$version_file"
+chown $USER:$USER "$DL_DIR/$version_file"
+
+# Update symlink if the version file is different from the one it points to
 current_file=$(readlink "$BIN_DIR/$PROGRAM")
-if [[ "$current_file" != "$DL_DIR/$latest_file" ]]; then
-    log "Updating symlink: $current_file -> $DL_DIR/$latest_file"
-    ln -snf "$DL_DIR/$latest_file" "$BIN_DIR/$PROGRAM"
+if [[ "$current_file" != "$DL_DIR/$version_file" ]]; then
+    log "Updating symlink: $current_file -> $DL_DIR/$version_file"
+    ln -snf "$DL_DIR/$version_file" "$BIN_DIR/$PROGRAM"
     DO_RESTART=true
 else
     DO_RESTART=false
@@ -308,7 +325,7 @@ fi
 ln -snf $BIN_DIR/$PROGRAM /usr/local/bin/$PROGRAM
 
 if [[ "$DO_RESTART" == true ]]; then
-  log "New version of $PROGRAM installed $latest_file."
+  log "New version of $PROGRAM installed $version_file."
   log "Please restart by running the following ..."
   log "systemctl stop $PROGRAM.service"
   log "systemctl start $PROGRAM.service"
