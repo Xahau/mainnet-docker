@@ -26,11 +26,14 @@ docker rm -f xahaud-mainnet
 chmod -R 777 $(self)/./store/bin 2> /dev/null
 
 if [[ -e ./store/etc/xahaud.cfg ]]; then
- # config present
- sampleconf=_
+  # config present
+  if [[ $(du -k ./store/etc/xahaud.cfg | cut -f1) -gt 0 ]]; then
+    # nonzero
+    sampleconf=_
+  fi
 else
- # no config present, use sample
- sampleconf=
+  # no config present, use sample
+  sampleconf=
 fi
 
 docker run \
