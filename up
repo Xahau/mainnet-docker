@@ -22,8 +22,16 @@ self(){
 
 docker rm -f xahaud-mainnet
 
-# Ugly
-chmod -R 777 $(self)/./store/bin
+# Ugly - don't
+chmod -R 777 $(self)/./store/bin 2> /dev/null
+
+if [[ -e ./store/etc/xahaud.cfg ]]; then
+ # config present
+ sampleconf=_
+else
+ # no config present, use sample
+ sampleconf=
+fi
 
 docker run \
     -dit \
@@ -42,6 +50,7 @@ docker run \
     -v $(self)/./store/db:/opt/xahaud/db \
     -v $(self)/./store/etc:/opt/xahaud/etc \
     -v $(self)/./store/log:/opt/xahaud/log \
+    -v $(self)/./store/etc/xahaud.sample.cfg:/opt/xahaud/etc/xahaud.cfg$sampleconf \
     -v $(self)/./store/ssh/authorized_keys:/root/.ssh/authorized_keys \
     xahaud:mainnet
 

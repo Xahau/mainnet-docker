@@ -5,3 +5,6 @@
 /store/log/debug.log
 /store/downloads/*
 *.old
+/store/etc/xahaud.cfg
+/store/etc/xahaud.cfg_
+
