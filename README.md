@@ -9,7 +9,7 @@ If you prefer not to run in a Docker container, simply fetch the install script 
 
 ## Live build:
 
-[https://build.xahau.tech/2024.1.25-release%2B738](https://build.xahau.tech/2024.1.25-release%2B738)
+[https://build.xahau.tech/2024.4.21-release%2B858](https://build.xahau.tech/2024.4.21-release%2B858)
 
 ## IPv6 edition (!)
 
