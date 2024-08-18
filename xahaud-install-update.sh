@@ -286,8 +286,10 @@ $VALIDATORS_FILE
 [peer_private]
 0
 
-[ips_fixed]
+[ips]
 bacab.alloy.ee 21337
+79.110.60.80 21337
+2a0c:3bc0::106e 21337
 
 # For validators only
 [voting]
