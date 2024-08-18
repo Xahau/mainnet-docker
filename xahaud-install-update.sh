@@ -255,7 +255,7 @@ protocol = http
 secure_gateway = 127.0.0.1
 
 [node_size]
-medium
+huge
 
 [node_db]
 type=NuDB
