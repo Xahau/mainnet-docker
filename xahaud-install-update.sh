@@ -255,12 +255,23 @@ protocol = http
 secure_gateway = 127.0.0.1
 
 [node_size]
-huge
+medium
+
+[ledger_history]
+256
+
+[relational_db]
+backend=rwdb
 
 [node_db]
-type=NuDB
-path=$DB_DIR/nudb
+type=rwdb
+online_delete=256
 advisory_delete=0
+
+#[node_db]
+#type=NuDB
+#path=$DB_DIR/nudb
+#advisory_delete=0
 
 [database_path]
 $DB_DIR
