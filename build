@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## PINNED MAINNET VERSION
-pinned_version="2024.11.18-release+1141"
+pinned_version="2025.12.1-release+2609"
 ## END PINNED MAINNET VERSION
 
 echo ""
